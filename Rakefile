@@ -17,11 +17,12 @@ Jeweler::Tasks.new do |gem|
   gem.name = "avocadodb-rb"
   gem.homepage = "http://github.com/okiess/avocadodb-rb"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = "Ruby client for AvocadoDB"
+  gem.description = "Ruby client for AvocadoDB"
   gem.email = "kiessler@inceedo.com"
   gem.authors = ["Oliver Kiessler"]
-  # dependencies defined in Gemfile
+  gem.add_runtime_dependency 'httparty'
+  gem.add_runtime_dependency 'json'
 end
 Jeweler::RubygemsDotOrgTasks.new
 
