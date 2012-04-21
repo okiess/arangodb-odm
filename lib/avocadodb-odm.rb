@@ -143,32 +143,3 @@ module AvocadoDb
     end
   end
 end
-
-# Usage:
-#
-# doc = ExampleDocument.new
-# doc.foo = "bar"
-# _id = doc.save
-#
-# doc.foo = "bar2"
-# _rev = doc.save
-#
-# success = doc.destroy
-# 
-# doc = ExampleDocument.find(_id)
-# doc2 = ExampleDocument.create("foo" => "bar")
-#
-# Example with dynamic attributes
-class ExampleDocument < AvocadoDb::Base
-  collection :examples
-end
-
-# Example with predefined attributes
-class AnotherExampleDocument < AvocadoDb::Base
-  collection :more_examples
-  attr_accessor :foo, :bar
-
-  def to_json
-    {'foo' => self.foo, 'bar' => self.bar}.to_json
-  end
-end

@@ -14,8 +14,8 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "avocadodb-rb"
-  gem.homepage = "http://github.com/okiess/avocadodb-rb"
+  gem.name = "avocadodb-odm"
+  gem.homepage = "http://github.com/okiess/avocadodb-odm"
   gem.license = "MIT"
   gem.summary = "Ruby client for AvocadoDB"
   gem.description = "Ruby client for AvocadoDB"
@@ -48,7 +48,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "avocadodb-rb #{version}"
+  rdoc.title = "avocadodb-odm #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
