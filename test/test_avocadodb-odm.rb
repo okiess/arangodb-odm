@@ -15,6 +15,11 @@ class AnotherExampleDocument < AvocadoDb::Base
 end
 
 class TestAvocadodbRb < Test::Unit::TestCase
+  should "class should have a collection" do
+    assert_equal ExampleDocument.collection, 'examples'
+    assert_equal AnotherExampleDocument.collection, 'more_examples'
+  end
+
   should "create a new document" do
     doc = ExampleDocument.new
     doc.foo = "bar"
@@ -23,17 +28,28 @@ class TestAvocadodbRb < Test::Unit::TestCase
     
     assert_nil doc._id
     assert_nil doc._rev
+    assert_nil doc.location
     
     _id = doc.save
     assert_not_nil _id
     assert_not_nil doc._id
     assert_not_nil doc._rev
+    assert_not_nil doc.location
     
     doc = ExampleDocument.find(_id)
     assert_equal doc._id, _id
     assert_equal doc.foo, "bar"
     assert_equal doc.test, 1
     assert_equal doc.list, [1, 2, 3]
+    
+    doc2 = AnotherExampleDocument.new
+    doc2.foo = 'bar'
+    doc2.bar = 'foo'
+    _id = doc2.save
+    assert_not_nil _id
+    assert_not_nil doc2._id
+    assert_not_nil doc2._rev
+    assert_not_nil doc2.location
   end
 
   should "create a document on the create class method" do
