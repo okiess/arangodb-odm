@@ -160,8 +160,15 @@ module ArangoDb
             return @target._id
           end
         else
+          if self.respond_to?(:before_save) and self.before_save
+            self.send(self.before_save.to_sym)
+          end
           res = @transport.put(@target.location, :body => to_json)
-          return (@target._rev = res.parsed_response['_rev'])
+          @target._rev = res.parsed_response['_rev']
+          if self.respond_to?(:after_save) and self.after_save
+            self.send(self.after_save.to_sym)
+          end
+          return @target._rev
         end
       end
       nil
@@ -180,9 +187,15 @@ module ArangoDb
 
     def destroy
       unless is_new?
+        if self.respond_to?(:before_destroy) and self.before_destroy
+          self.send(self.before_destroy.to_sym)
+        end
         res = @transport.delete(@target.location)
         if res.code == 200
           @target.location = nil; @target._id = nil; @target._rev = nil
+          if self.respond_to?(:after_destroy) and self.after_destroy
+            self.send(self.after_destroy.to_sym)
+          end
           return true
         end
       end
