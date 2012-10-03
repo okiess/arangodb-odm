@@ -2,7 +2,7 @@ require "rubygems"
 require "httparty"
 require "json"
 
-module AvocadoDb
+module ArangoDb
   class Transport
     include HTTParty
     base_uri 'http://localhost:8529'
@@ -46,18 +46,18 @@ module AvocadoDb
     end
   end
 
-  # Base class for AvocadoDB documents. Subclass it to create your own collection 
+  # Base class for ArangoDB documents. Subclass it to create your own collection 
   # specific document representations.
   #
   # Example:
   #
-  # class ExampleDocument < AvocadoDb::Base
+  # class ExampleDocument < ArangoDb::Base
   #  collection :examples
   # end
   class Base
-    include AvocadoDb::Properties
-    transport AvocadoDb::Transport
-    target AvocadoDb::Document
+    include ArangoDb::Properties
+    transport ArangoDb::Transport
+    target ArangoDb::Document
     attr_reader :target
 
     def initialize
@@ -67,12 +67,12 @@ module AvocadoDb
 
     def self.find(document_handle)
       raise "missing document handle" if document_handle.nil?
-      res = transport.get("/document/#{document_handle}")
+      res = transport.get("/_api/document/#{document_handle}")
       res.code == 200 ? self.new.build(res.parsed_response) : nil
     end
 
     def self.keys
-      res = transport.get("/document?collection=#{collection}")
+      res = transport.get("/_api/document?collection=#{collection}")
       res.code == 200 ? res.parsed_response['documents'] : []
     end
 
@@ -86,13 +86,13 @@ module AvocadoDb
       attributes.each {|k, v| self.send("#{k}=".to_sym, v) unless ['_id', '_rev'].include?(k)}
       self.target._id = attributes['_id']
       self.target._rev = attributes['_rev']
-      self.target.location = "/document/#{self.target._id}"
+      self.target.location = "/_api/document/#{self.target._id}"
       self
     end
 
     def save
       if @target.is_new?
-        res = @transport.post("/document/?collection=#{@target.collection}&createCollection=true", :body => to_json)
+        res = @transport.post("/_api/document/?collection=#{@target.collection}&createCollection=true", :body => to_json)
         if res.code == 201 || res.code == 202
           @target.location = res.headers["location"]
           @target._id = res.parsed_response["_id"]

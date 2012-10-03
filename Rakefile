@@ -14,11 +14,11 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "avocadodb-odm"
-  gem.homepage = "http://github.com/okiess/avocadodb-odm"
+  gem.name = "arangodb-odm"
+  gem.homepage = "http://github.com/okiess/arangodb-odm"
   gem.license = "MIT"
-  gem.summary = "Ruby client for AvocadoDB"
-  gem.description = "Ruby client for AvocadoDB"
+  gem.summary = "Ruby client for ArangoDB"
+  gem.description = "Ruby client for ArangoDB"
   gem.email = "kiessler@inceedo.com"
   gem.authors = ["Oliver Kiessler"]
   gem.add_runtime_dependency 'httparty'
@@ -48,7 +48,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "avocadodb-odm #{version}"
+  rdoc.title = "arangodb-odm #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end

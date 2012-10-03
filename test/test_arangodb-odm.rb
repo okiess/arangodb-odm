@@ -1,11 +1,11 @@
 require 'helper'
 
-class ExampleDocument < AvocadoDb::Base
+class ExampleDocument < ArangoDb::Base
   collection :examples
 end
 
 # Example with predefined attributes
-class AnotherExampleDocument < AvocadoDb::Base
+class AnotherExampleDocument < ArangoDb::Base
   collection :more_examples
   attr_accessor :foo, :bar
 
@@ -14,7 +14,7 @@ class AnotherExampleDocument < AvocadoDb::Base
   end
 end
 
-class TestAvocadodbRb < Test::Unit::TestCase
+class TestArangoDbRb < Test::Unit::TestCase
   should "class should have a collection" do
     assert_equal ExampleDocument.collection, 'examples'
     assert_equal AnotherExampleDocument.collection, 'more_examples'

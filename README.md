@@ -1,16 +1,16 @@
-# avocadodb-odm
+# arangodb-odm
 
 ## Example Code
 
 ### Example with dynamic attributes
 
-	class ExampleDocument < AvocadoDb::Base
+	class ExampleDocument < ArangoDb::Base
   		collection :examples
 	end
 
 ### Example with predefined attributes
 
-	class AnotherExampleDocument < AvocadoDb::Base
+	class AnotherExampleDocument < ArangoDb::Base
   		collection :more_examples
   		attr_accessor :foo, :bar
 
