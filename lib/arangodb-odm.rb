@@ -9,23 +9,31 @@ module ArangoDb
   end
 
   class Document
-    attr_accessor :collection, :location, :_id, :_rev
+    attr_accessor :collection, :db_attrs, :location, :_id, :_rev
     attr_reader :attributes
 
-    def initialize(collection)
-      @attributes = {}; @collection = collection
+    def initialize(collection, db_attrs = [])
+      @attributes = {}; @collection = collection; @db_attr_names = db_attrs
     end
 
     def is_new?; self._id.nil?; end
-    def to_json; self.attributes.to_json; end
+    def to_json
+      if @db_attr_names and @db_attr_names.any?
+        values = {}
+        @db_attr_names.each {|a| values[a] = self.attributes[a.to_s]}
+        values.to_json
+      else
+        self.attributes.to_json
+      end
+    end
   end
 
   module Properties
     def self.included(klass)  
       klass.extend ClassMethods  
-    end  
+    end
 
-    module ClassMethods  
+    module ClassMethods
       def collection(value)
         (class << self; self; end).send(:define_method, 'collection') do
           value.to_s
@@ -43,6 +51,14 @@ module ArangoDb
           value
         end
       end
+
+      def db_attrs(*attrs)
+        @db_attr_names ||= []
+        @db_attr_names << attrs.collect {|a| a.to_s} if attrs.any?
+        (class << self; self; end).send(:define_method, 'db_attributes') do
+          @db_attr_names ? @db_attr_names.first : []
+        end
+      end
     end
   end
 
@@ -58,11 +74,12 @@ module ArangoDb
     include ArangoDb::Properties
     transport ArangoDb::Transport
     target ArangoDb::Document
+    db_attrs []
     attr_reader :target
 
     def initialize
       @transport = self.class.transport
-      @target = self.class.target.new(self.class.collection)
+      @target = self.class.target.new(self.class.collection, self.class.db_attributes)
     end
 
     def self.find(document_handle)
@@ -137,7 +154,7 @@ module ArangoDb
         @target.attributes[method.gsub('=', '')] = args.first unless ['_id=', '_rev='].include?(method)
       else
         val = @target.attributes[method]
-        val = @target.send(method.to_sym) unless val
+        val = @target.send(method.to_sym) rescue nil unless val
         val
       end
     end

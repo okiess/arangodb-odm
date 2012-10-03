@@ -12,11 +12,7 @@
 
 	class AnotherExampleDocument < ArangoDb::Base
   		collection :more_examples
-  		attr_accessor :foo, :bar
-
-  		def to_json
-    		{'foo' => self.foo, 'bar' => self.bar}.to_json
-  		end
+  		db_attrs :foo, :bar # only these attributes will be saved
 	end
 
 ## Usage

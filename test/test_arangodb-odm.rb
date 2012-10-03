@@ -7,11 +7,7 @@ end
 # Example with predefined attributes
 class AnotherExampleDocument < ArangoDb::Base
   collection :more_examples
-  attr_accessor :foo, :bar
-
-  def to_json
-    {'foo' => self.foo, 'bar' => self.bar}.to_json
-  end
+  db_attrs :foo, :bar
 end
 
 class TestArangoDbRb < Test::Unit::TestCase
@@ -29,7 +25,7 @@ class TestArangoDbRb < Test::Unit::TestCase
     assert_nil doc._id
     assert_nil doc._rev
     assert_nil doc.location
-    
+ 
     _id = doc.save
     assert_not_nil _id
     assert_not_nil doc._id
@@ -45,11 +41,17 @@ class TestArangoDbRb < Test::Unit::TestCase
     doc2 = AnotherExampleDocument.new
     doc2.foo = 'bar'
     doc2.bar = 'foo'
+    doc2.foo2 = 'bar2' # won't be saved => not in predefined db_attrs
     _id = doc2.save
     assert_not_nil _id
     assert_not_nil doc2._id
     assert_not_nil doc2._rev
     assert_not_nil doc2.location
+    
+    doc3 = AnotherExampleDocument.find(_id)
+    assert_nil doc3.foo2
+    assert_equal doc3.foo, 'bar'
+    assert_equal doc3.bar, 'foo'
   end
 
   should "create a document on the create class method" do
@@ -92,7 +94,7 @@ class TestArangoDbRb < Test::Unit::TestCase
     doc2 = ExampleDocument.find(_id)
     assert_nil doc2
   end
-  
+
   should "get all document handles" do
     doc = ExampleDocument.create(:foo => "bar", :test => 1, :list => [1, 2, 3])
     all_handles = ExampleDocument.keys
