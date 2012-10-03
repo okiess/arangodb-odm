@@ -2,7 +2,11 @@
 
 ## Installation
 
-  gem install arangodb-odm
+    gem install arangodb-odm
+
+## Configuration
+
+    ArangoDb::Transport.base_uri 'http://localhost:8529'
 
 ## Example Code
 

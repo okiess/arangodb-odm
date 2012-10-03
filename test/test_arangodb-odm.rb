@@ -1,5 +1,7 @@
 require 'helper'
 
+ArangoDb::Transport.base_uri 'http://localhost:8529'
+
 class ExampleDocument < ArangoDb::Base
   collection :examples
 end
