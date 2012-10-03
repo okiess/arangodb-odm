@@ -1,5 +1,9 @@
 # arangodb-odm
 
+## Installation
+
+  gem install arangodb-odm
+
 ## Example Code
 
 ### Example with dynamic attributes
