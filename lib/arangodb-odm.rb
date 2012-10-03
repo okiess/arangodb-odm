@@ -52,6 +52,42 @@ module ArangoDb
         end
       end
 
+      def before_create(value)
+        self.send(:define_method, 'before_create') do
+          value
+        end
+      end
+
+      def after_create(value)
+        self.send(:define_method, 'after_create') do
+          value
+        end
+      end
+
+      def before_save(value)
+        self.send(:define_method, 'before_save') do
+          value
+        end
+      end
+
+      def after_save(value)
+        self.send(:define_method, 'after_save') do
+          value
+        end
+      end
+
+      def before_destroy(value)
+        self.send(:define_method, 'before_destroy') do
+          value
+        end
+      end
+
+      def after_destroy(value)
+        self.send(:define_method, 'after_destroy') do
+          value
+        end
+      end
+
       def db_attrs(*attrs)
         @db_attr_names ||= []
         @db_attr_names << attrs.collect {|a| a.to_s} if attrs.any?
@@ -101,20 +137,26 @@ module ArangoDb
 
     def build(attributes = {})
       attributes.each {|k, v| self.send("#{k}=".to_sym, v) unless ['_id', '_rev'].include?(k)}
-      self.target._id = attributes['_id']
-      self.target._rev = attributes['_rev']
-      self.target.location = "/_api/document/#{self.target._id}"
+      self.target._id = attributes['_id'] if attributes['_id'] 
+      self.target._rev = attributes['_rev'] if attributes['_rev']
+      self.target.location = "/_api/document/#{self.target._id}" if attributes['_id']
       self
     end
 
     def save
       if validate
         if @target.is_new?
+          if self.respond_to?(:before_create) and self.before_create
+            self.send(self.before_create.to_sym)
+          end
           res = @transport.post("/_api/document/?collection=#{@target.collection}&createCollection=true", :body => to_json)
           if res.code == 201 || res.code == 202
             @target.location = res.headers["location"]
             @target._id = res.parsed_response["_id"]
             @target._rev = res.headers["etag"]
+            if self.respond_to?(:after_create) and self.after_create
+              self.send(self.after_create.to_sym)
+            end
             return @target._id
           end
         else
