@@ -14,5 +14,8 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'arangodb-odm'
 
+# Set your ArangoDB host...
+ArangoDb::Transport.base_uri 'http://localhost:8529'
+
 class Test::Unit::TestCase
 end

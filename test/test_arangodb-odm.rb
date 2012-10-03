@@ -1,9 +1,11 @@
 require 'helper'
 
-ArangoDb::Transport.base_uri 'http://localhost:8529'
-
 class ExampleDocument < ArangoDb::Base
   collection :examples
+
+  def validate
+    not self.foo.nil?
+  end
 end
 
 # Example with predefined attributes

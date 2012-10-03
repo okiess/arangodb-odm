@@ -108,21 +108,26 @@ module ArangoDb
     end
 
     def save
-      if @target.is_new?
-        res = @transport.post("/_api/document/?collection=#{@target.collection}&createCollection=true", :body => to_json)
-        if res.code == 201 || res.code == 202
-          @target.location = res.headers["location"]
-          @target._id = res.parsed_response["_id"]
-          @target._rev = res.headers["etag"]
-          return @target._id
+      if validate
+        if @target.is_new?
+          res = @transport.post("/_api/document/?collection=#{@target.collection}&createCollection=true", :body => to_json)
+          if res.code == 201 || res.code == 202
+            @target.location = res.headers["location"]
+            @target._id = res.parsed_response["_id"]
+            @target._rev = res.headers["etag"]
+            return @target._id
+          end
+        else
+          res = @transport.put(@target.location, :body => to_json)
+          return (@target._rev = res.parsed_response['_rev'])
         end
-      else
-        res = @transport.put(@target.location, :body => to_json)
-        return (@target._rev = res.parsed_response['_rev'])
       end
       nil
     end
-
+  
+    # Override to run your own validations.
+    def validate; true; end
+  
     def changed?
       unless @target.is_new?
         res = @transport.head(@target.location)
