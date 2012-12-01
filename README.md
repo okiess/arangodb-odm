@@ -41,7 +41,7 @@
 	
 ## Simple Queries
 
-    docs = ExampleDocument.all(limit => :10, :skip => 10)
+    docs = ExampleDocument.all(limit => 10, :skip => 10)
 
 ## Callbacks
 
