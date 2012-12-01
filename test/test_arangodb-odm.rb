@@ -1,49 +1,6 @@
 require 'helper'
 
-class ExampleDocument < ArangoDb::Base
-  collection :examples
-  
-  before_create :add_something
-  after_create :do_something_else
-  
-  before_destroy :method1
-  after_destroy :method2
-
-  def validate
-    not self.foo.nil?
-  end
-  
-  def add_something
-    self.something = "other"
-  end
-  
-  def do_something_else; end
-  
-  def method1
-    # puts self._id
-  end
-  
-  def method2
-    # puts self._id
-  end
-end
-
-# Example with predefined attributes
-class AnotherExampleDocument < ArangoDb::Base
-  collection :more_examples
-  db_attrs :foo, :bar
-  
-  before_save :change_something
-  after_save :change_something_else
-  
-  def change_something
-    self.foo = 'bar2'
-  end
-  
-  def change_something_else; end
-end
-
-class TestArangoDbRb < Test::Unit::TestCase
+class TestArangoDb < Test::Unit::TestCase
   should "class should have a collection" do
     assert_equal ExampleDocument.collection, 'examples'
     assert_equal AnotherExampleDocument.collection, 'more_examples'

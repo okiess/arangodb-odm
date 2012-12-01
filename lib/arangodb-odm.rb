@@ -1,6 +1,7 @@
 require "rubygems"
 require "httparty"
 require "json"
+require "queries"
 
 module ArangoDb
   class Transport
@@ -108,6 +109,7 @@ module ArangoDb
   # end
   class Base
     include ArangoDb::Properties
+    extend ArangoDb::Queries::ClassMethods
     transport ArangoDb::Transport
     target ArangoDb::Document
     db_attrs []

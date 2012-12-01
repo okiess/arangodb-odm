@@ -38,6 +38,10 @@
 	doc2 = ExampleDocument.create("foo" => "bar")
 
 	all_document_handles = ExampleDocument.keys
+	
+## Simple Queries
+
+    docs = ExampleDocument.all(limit => :10, :skip => 10)
 
 ## Callbacks
 
