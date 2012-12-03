@@ -13,7 +13,7 @@
 ### Example with dynamic attributes
 
 	class ExampleDocument < ArangoDb::Base
-  		collection :examples
+  	  collection :examples
 	end
 
 ### Example with predefined attributes
@@ -24,6 +24,8 @@
 	end
 
 ## Usage
+
+### CRUD
 
 	doc = ExampleDocument.new
 	doc.foo = "bar"
@@ -39,9 +41,22 @@
 
 	all_document_handles = ExampleDocument.keys
 	
-## Simple Queries
+### Simple Queries
 
-    docs = ExampleDocument.all(limit => 10, :skip => 10)
+#### All
+
+    ExampleDocument.all
+    ExampleDocument.skip(1).limit(2).all
+    
+#### All by example
+    
+    ExampleDocument.where('foo' => 'bar').all
+    ExampleDocument.where('foo' => 'bar').skip(10).limit(10).all
+    ExampleDocument.where('foo' => 'bar').where('a' => 'b').skip(10).limit(10).all
+
+#### First by example
+    
+    ExampleDocument.where('foo' => 'bar', 'a' => 'b').first
 
 ## Callbacks
 
