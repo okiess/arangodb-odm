@@ -1,6 +1,7 @@
 module ArangoDb
   module Queries
     class QueryResult < Array
+      # TODO
     end
 
     class Query

@@ -1,6 +1,7 @@
 class ExampleDocument < ArangoDb::Base
   collection :examples
-  
+  skiplist :test
+
   before_create :add_something
   after_create :do_something_else
   

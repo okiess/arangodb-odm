@@ -1,7 +1,9 @@
 require "rubygems"
 require "httparty"
 require "json"
+
 require "queries"
+require "indices"
 
 module ArangoDb
   class Transport
@@ -29,60 +31,83 @@ module ArangoDb
     end
   end
 
+  class Index
+    attr_accessor :indices
+
+    def initialize(indices)
+      @indices = indices
+    end
+  end
+
   module Properties
     def self.included(klass)  
       klass.extend ClassMethods  
     end
 
     module ClassMethods
+      # The collection to use for this document.
       def collection(value)
         (class << self; self; end).send(:define_method, 'collection') do
           value.to_s
         end
       end
 
+      def skiplist(*fields)
+        (class << self; self; end).send(:define_method, 'skiplist') do
+          fields.to_a
+        end
+      end
+      
+      # Sets the transport class to use. Defaults to httparty.
       def transport(value)
         (class << self; self; end).send(:define_method, 'transport') do
           value
         end
       end
 
+      # Sets the document value proxy to use.
       def target(value)
         (class << self; self; end).send(:define_method, 'target') do
           value
         end
       end
 
+      # Callback that is being invoked before a document is first created.
       def before_create(value)
         self.send(:define_method, 'before_create') do
           value
         end
       end
 
+      # Callback that is being invoked after a document is first created.
       def after_create(value)
         self.send(:define_method, 'after_create') do
           value
         end
       end
 
+      # Callback that is being invoked before a document is updated.
       def before_save(value)
         self.send(:define_method, 'before_save') do
           value
         end
       end
 
+      # Callback that is being invoked after a document was updated.
       def after_save(value)
         self.send(:define_method, 'after_save') do
           value
         end
       end
 
+      # Callback that is being invoked before a document is destroyed.
       def before_destroy(value)
         self.send(:define_method, 'before_destroy') do
           value
         end
       end
 
+      # Callback that is being invoked after a document was destroyed.
       def after_destroy(value)
         self.send(:define_method, 'after_destroy') do
           value
@@ -106,18 +131,23 @@ module ArangoDb
   #
   # class ExampleDocument < ArangoDb::Base
   #  collection :examples
+  #  skiplist [:a, :b]
   # end
   class Base
     include ArangoDb::Properties
     extend ArangoDb::Queries::ClassMethods
+    extend ArangoDb::Indices::ClassMethods
     transport ArangoDb::Transport
     target ArangoDb::Document
     db_attrs []
-    attr_reader :target
+    attr_reader :target, :index
 
     def initialize
       @transport = self.class.transport
       @target = self.class.target.new(self.class.collection, self.class.db_attributes)
+      if self.class.respond_to?(:skiplist) and self.class.skiplist
+        @index = ArangoDb::Index.new(:skiplist => self.class.skiplist)
+      end
     end
 
     def self.find(document_handle)
