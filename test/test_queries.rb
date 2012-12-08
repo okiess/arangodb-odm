@@ -29,4 +29,24 @@ class TestArangoDbQueries < Test::Unit::TestCase
     example_document = ExampleDocument.where(:something => 'not existant').first
     assert_nil example_document
   end
+  
+  should "get documents in a given range" do
+    ts = Time.now.to_i + rand(1000); count = 10
+    count.times {|i| ExampleDocument.create(:foo => "1", :test => ts + i)}
+    
+    example_documents = ExampleDocument.attribute(:test).left(ts + 6).right(ts + 9).all
+    assert_not_nil example_documents
+    assert_equal example_documents.size, 3
+    assert_equal example_documents[0].test, ts + 6
+    assert_equal example_documents[1].test, ts + 7
+    assert_equal example_documents[2].test, ts + 8
+    
+    example_documents = ExampleDocument.attribute(:test).left(ts + 6).right(ts + 9).closed(true).all
+    assert_not_nil example_documents
+    assert_equal example_documents.size, 4
+    assert_equal example_documents[0].test, ts + 6
+    assert_equal example_documents[1].test, ts + 7
+    assert_equal example_documents[2].test, ts + 8
+    assert_equal example_documents[3].test, ts + 9
+  end
 end

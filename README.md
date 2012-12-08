@@ -57,6 +57,12 @@
 #### First by example
     
     ExampleDocument.where('foo' => 'bar', 'a' => 'b').first
+    
+#### Range
+
+    # Make sure you've setup a skip-list index on the attribute
+    ExampleDocument.attribute('test').left(0).right(100).all
+    ExampleDocument.attribute('test').left(0).right(100).closed(true).skip(10).limit(10).all
 
 ## Callbacks
 
@@ -98,6 +104,20 @@
 
       def change_something_else; end
     end
+    
+## Indices
+
+### Skip List Index Definition
+
+    class ExampleDocument < ArangoDb::Base
+      collection :examples
+      skiplist :test, :something_else
+    end
+
+### Creating indices
+
+    # Creates all indices defined in the document. Run it once when you setup your document model...
+    ExampleDocument.ensure_indices
 
 ## Copyright
 
