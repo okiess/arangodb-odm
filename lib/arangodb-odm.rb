@@ -2,6 +2,7 @@ require "rubygems"
 require "httparty"
 require "json"
 
+require "collections"
 require "queries"
 require "indices"
 
@@ -135,6 +136,7 @@ module ArangoDb
   # end
   class Base
     include ArangoDb::Properties
+    extend ArangoDb::Collections::ClassMethods
     extend ArangoDb::Queries::ClassMethods
     extend ArangoDb::Indices::ClassMethods
     transport ArangoDb::Transport

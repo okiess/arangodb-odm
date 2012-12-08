@@ -19,5 +19,10 @@ require 'another_example_document.rb'
 # Set your ArangoDB host...
 ArangoDb::Transport.base_uri 'http://localhost:8529'
 
+# Initial setup
+ExampleDocument.create_collection # only needed to be able to create indices on the initial test run
+ExampleDocument.ensure_indices
+# AnotherExampleDocument.create_collection
+
 class Test::Unit::TestCase
 end

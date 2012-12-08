@@ -3,7 +3,8 @@ module ArangoDb
     module ClassMethods
       
       # POST /_api/index?collection=collection-identifier
-      # Creates a skip-list index for the collection collection-identifier, if it does not already exist. The call expects an object containing the index details.
+      # Creates a skip-list index for the collection collection-identifier, if it does not already exist. The call expects an object 
+      # containing the index details.
       # type: must be equal to "skiplist".
       # fields: A list of attribute paths.
       # unique: If true, then create a unique index.
