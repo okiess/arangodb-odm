@@ -13,7 +13,7 @@ module ArangoDb
   end
 
   class Document
-    attr_accessor :collection, :db_attrs, :location, :_id, :_rev
+    attr_accessor :db, :collection, :db_attrs, :location, :_id, :_rev
     attr_reader :attributes
 
     def initialize(collection, db_attrs = [])
@@ -186,6 +186,9 @@ module ArangoDb
           res = @transport.post("/_api/document/?collection=#{@target.collection}&createCollection=true", :body => to_json)
           if res.code == 201 || res.code == 202
             @target.location = res.headers["location"]
+            if @target.location and @target.location.include?("/_db")
+              @target.db = @target.location.split("/")[2]
+            end
             @target._id = res.parsed_response["_id"]
             @target._rev = res.headers["etag"]
             if self.respond_to?(:after_create) and self.after_create
@@ -225,7 +228,7 @@ module ArangoDb
           self.send(self.before_destroy.to_sym)
         end
         res = @transport.delete(@target.location)
-        if res.code == 200
+        if res.code == 200 or res.code == 202
           @target.location = nil; @target._id = nil; @target._rev = nil
           if self.respond_to?(:after_destroy) and self.after_destroy
             self.send(self.after_destroy.to_sym)

@@ -105,7 +105,7 @@ class TestArangoDb < Test::Unit::TestCase
     doc = ExampleDocument.create(:foo => "bar", :test => 1, :list => [1, 2, 3])
     all_handles = ExampleDocument.keys
     assert_not_nil all_handles
-    assert all_handles.include?(doc.location)
+    assert all_handles.include?(doc.location.split("/_db/_system")[1])
     assert doc.destroy
   end
 end
