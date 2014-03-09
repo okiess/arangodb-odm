@@ -19,6 +19,11 @@ module ArangoDb
           res.parsed_response["id"]
         end
       end
+      
+      # Convenience method for creating edge collections.
+      def create_edge_collection(options = {})
+        create_collection(options.merge(:type => 3))
+      end
     end
   end
 end

@@ -15,6 +15,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'arangodb-odm'
 require 'example_document.rb'
 require 'another_example_document.rb'
+require 'example_edge.rb'
 
 # Set your ArangoDB host...
 ArangoDb::Transport.base_uri 'http://localhost:8529'
@@ -22,7 +23,8 @@ ArangoDb::Transport.base_uri 'http://localhost:8529'
 # Initial setup
 ExampleDocument.create_collection # only needed to be able to create indices on the initial test run
 ExampleDocument.ensure_indices
-# AnotherExampleDocument.create_collection
+AnotherExampleDocument.create_collection
+ExampleEdge.create_edge_collection
 
 class Test::Unit::TestCase
 end

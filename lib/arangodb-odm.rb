@@ -32,6 +32,10 @@ module ArangoDb
     end
   end
 
+  class EdgeDocument < Document
+    attr_accessor :_from, :_to
+  end
+
   class Index
     attr_accessor :indices
 

@@ -7,6 +7,10 @@
 ## Configuration
 
     ArangoDb::Transport.base_uri 'http://localhost:8529'
+    
+This will use the default '_system' database. If you want to use a different database, you can specify it like this:
+
+    ArangoDb::Transport.base_uri 'http://localhost:8529/_db/mydb'
 
 ## Example Code
 
@@ -113,6 +117,11 @@
       collection :examples
       skiplist :test, :something_else
     end
+
+### Creating collections
+
+    ExampleDocument.create_collection
+    ExampleEdge.create_edge_collection
 
 ### Creating indices
 
