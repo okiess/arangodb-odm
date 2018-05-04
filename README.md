@@ -1,4 +1,4 @@
-# arangodb-odm
+# arangodb-odm (Unsupported)
 
 ## Installation
 
