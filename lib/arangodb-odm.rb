@@ -11,6 +11,26 @@ module ArangoDb
     include HTTParty
     base_uri 'http://localhost:8529'
   end
+  
+  class Edge
+    attr_accessor :db, :collection, :db_attrs, :location, :_id, :_rev, :_from, :_to
+    attr_reader :attributes
+
+    def initialize(collection, db_attrs = [])
+      @attributes = {}; @collection = collection; @db_attr_names = db_attrs
+    end
+
+    def is_new?; self._id.nil?; end
+    def to_json
+      if @db_attr_names and @db_attr_names.any?
+        values = {}
+        @db_attr_names.each {|a| values[a] = self.attributes[a.to_s]}
+        values.to_json
+      else
+        self.attributes.to_json
+      end
+    end
+  end
 
   class Document
     attr_accessor :db, :collection, :db_attrs, :location, :_id, :_rev
@@ -144,75 +164,20 @@ module ArangoDb
     extend ArangoDb::Queries::ClassMethods
     extend ArangoDb::Indices::ClassMethods
     transport ArangoDb::Transport
-    target ArangoDb::Document
     db_attrs []
     attr_reader :target, :index
 
     def initialize
       @transport = self.class.transport
-      @target = self.class.target.new(self.class.collection, self.class.db_attributes)
       if self.class.respond_to?(:skiplist) and self.class.skiplist
         @index = ArangoDb::Index.new(:skiplist => self.class.skiplist)
       end
-    end
-
-    def self.find(document_handle)
-      raise "missing document handle" if document_handle.nil?
-      res = transport.get("/_api/document/#{document_handle}")
-      res.code == 200 ? self.new.build(res.parsed_response) : nil
-    end
-
-    def self.keys
-      res = transport.get("/_api/document?collection=#{collection}")
-      res.code == 200 ? res.parsed_response['documents'] : []
     end
 
     def self.create(attributes = {})
       document = self.new.build(attributes)
       document.save
       document
-    end
-
-    def build(attributes = {})
-      attributes.each {|k, v| self.send("#{k}=".to_sym, v) unless ['_id', '_rev'].include?(k)}
-      self.target._id = attributes['_id'] if attributes['_id'] 
-      self.target._rev = attributes['_rev'] if attributes['_rev']
-      self.target.location = "/_api/document/#{self.target._id}" if attributes['_id']
-      self
-    end
-
-    def save
-      if validate
-        if @target.is_new?
-          if self.respond_to?(:before_create) and self.before_create
-            self.send(self.before_create.to_sym)
-          end
-          res = @transport.post("/_api/document/?collection=#{@target.collection}&createCollection=true", :body => to_json)
-          if res.code == 201 || res.code == 202
-            @target.location = res.headers["location"]
-            if @target.location and @target.location.include?("/_db")
-              @target.db = @target.location.split("/")[2]
-            end
-            @target._id = res.parsed_response["_id"]
-            @target._rev = res.headers["etag"]
-            if self.respond_to?(:after_create) and self.after_create
-              self.send(self.after_create.to_sym)
-            end
-            return @target._id
-          end
-        else
-          if self.respond_to?(:before_save) and self.before_save
-            self.send(self.before_save.to_sym)
-          end
-          res = @transport.put(@target.location, :body => to_json)
-          @target._rev = res.parsed_response['_rev']
-          if self.respond_to?(:after_save) and self.after_save
-            self.send(self.after_save.to_sym)
-          end
-          return @target._rev
-        end
-      end
-      nil
     end
   
     # Override to run your own validations.
@@ -258,6 +223,139 @@ module ArangoDb
         val = @target.send(method.to_sym) rescue nil unless val
         val
       end
+    end
+  end
+  
+  class DocumentBase < Base
+    target ArangoDb::Document
+    attr_reader :target, :index
+
+    def initialize
+      super
+      @target = self.class.target.new(self.class.collection, self.class.db_attributes)
+    end
+
+    def self.find(document_handle)
+      raise "missing document handle" if document_handle.nil?
+      res = transport.get("/_api/document/#{document_handle}")
+      res.code == 200 ? self.new.build(res.parsed_response) : nil
+    end
+
+    def self.keys
+      res = transport.get("/_api/document?collection=#{collection}")
+      res.code == 200 ? res.parsed_response['documents'] : []
+    end
+
+    def build(attributes = {})
+      attributes.each {|k, v| self.send("#{k}=".to_sym, v) unless ['_id', '_rev'].include?(k)}
+      self.target._id = attributes['_id'] if attributes['_id'] 
+      self.target._rev = attributes['_rev'] if attributes['_rev']
+      self.target.location = "/_api/document/#{self.target._id}" if attributes['_id']
+      self
+    end
+
+    def save
+      if validate
+        if @target.is_new?
+          if self.respond_to?(:before_create) and self.before_create
+            self.send(self.before_create.to_sym)
+          end
+          res = @transport.post("/_api/document/?collection=#{@target.collection}&createCollection=true", :body => to_json)
+          if res.code == 201 || res.code == 202
+            @target.location = res.headers["location"]
+            if @target.location and @target.location.include?("/_db")
+              @target.db = @target.location.split("/")[2]
+            end
+            @target._id = res.parsed_response["_id"]
+            @target._rev = res.headers["etag"]
+            if self.respond_to?(:after_create) and self.after_create
+              self.send(self.after_create.to_sym)
+            end
+            return @target._id
+          end
+        else
+          if self.respond_to?(:before_save) and self.before_save
+            self.send(self.before_save.to_sym)
+          end
+          res = @transport.put(@target.location, :body => to_json)
+          @target._rev = res.parsed_response['_rev']
+          if self.respond_to?(:after_save) and self.after_save
+            self.send(self.after_save.to_sym)
+          end
+          return @target._rev
+        end
+      end
+      nil
+    end
+  end
+  
+  class EdgeBase < Base
+    target ArangoDb::Edge
+    attr_reader :target, :index
+
+    def initialize
+      super
+      @target = self.class.target.new(self.class.collection, self.class.db_attributes)
+    end
+
+    def self.find(document_handle)
+      raise "missing edge handle" if document_handle.nil?
+      res = transport.get("/_api/edge/#{document_handle}")
+      res.code == 200 ? self.new.build(res.parsed_response) : nil
+    end
+
+    def self.keys
+      res = transport.get("/_api/edge?collection=#{collection}")
+      res.code == 200 ? res.parsed_response['documents'] : []
+    end
+
+    def build(attributes = {})
+      attributes.each {|k, v| self.send("#{k}=".to_sym, v) unless ['_id', '_rev', 'from', 'to'].include?(k)}
+      self.target._id = attributes['_id'] if attributes['_id'] 
+      self.target._rev = attributes['_rev'] if attributes['_rev']
+      self.target._from = attributes['_from'] if attributes['_from']
+      self.target._to = attributes['_to'] if attributes['_to']
+      self.target.location = "/_api/edge/#{self.target._id}" if attributes['_id']
+      self
+    end
+
+    def save
+      if validate
+        if @target.is_new?
+          if self.respond_to?(:before_create) and self.before_create
+            self.send(self.before_create.to_sym)
+          end
+          
+          puts "/_api/edge/?collection=#{@target.collection}&createCollection=true&from=#{@target._from}&to=#{@target._to}", to_json, "----"
+          res = @transport.post("/_api/edge/?collection=#{@target.collection}&createCollection=true&from=#{@target._from}&to=#{@target._to}", :body => to_json)
+          
+          if res.code == 201 || res.code == 202
+            @target.location = res.headers["location"]
+            if @target.location and @target.location.include?("/_db")
+              @target.db = @target.location.split("/")[2]
+            end
+            @target._id = res.parsed_response["_id"]
+            @target._rev = res.headers["etag"]
+            @target._from = res.parsed_response['_from']
+            @target._to = res.parsed_response['_to']
+            if self.respond_to?(:after_create) and self.after_create
+              self.send(self.after_create.to_sym)
+            end
+            return @target._id
+          end
+        else
+          if self.respond_to?(:before_save) and self.before_save
+            self.send(self.before_save.to_sym)
+          end
+          res = @transport.put(@target.location, :body => to_json)
+          @target._rev = res.parsed_response['_rev']
+          if self.respond_to?(:after_save) and self.after_save
+            self.send(self.after_save.to_sym)
+          end
+          return @target._rev
+        end
+      end
+      nil
     end
   end
 end
