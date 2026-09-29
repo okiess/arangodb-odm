@@ -1,14 +1,12 @@
-source "http://rubygems.org"
-gem 'httparty'
+source "https://rubygems.org"
+
+gem 'httparty', '>= 0.21.0'
 gem 'json'
 
 group :development do
   gem "shoulda", ">= 0"
-  gem "bundler", "~> 1.1.0"
-  gem "jeweler", "~> 1.6.4"
-  gem "rdoc", "~> 2.4.2"
-end
-
-group :test do
-  gem 'simplecov', :require => false
+  gem "bundler", ">= 2.0"
+  gem "rake", ">= 12.3.3"
+  gem "git", ">= 1.11.0"
+  gem "test-unit", "~> 3.7"
 end

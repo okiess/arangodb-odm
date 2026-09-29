@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 require 'rubygems'
 require 'bundler'
 begin
@@ -11,21 +9,6 @@ rescue Bundler::BundlerError => e
 end
 require 'rake'
 
-require 'jeweler'
-Jeweler::Tasks.new do |gem|
-  # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "arangodb-odm"
-  gem.homepage = "http://github.com/okiess/arangodb-odm"
-  gem.license = "MIT"
-  gem.summary = "Ruby client for ArangoDB"
-  gem.description = "Ruby client for ArangoDB"
-  gem.email = "kiessler@inceedo.com"
-  gem.authors = ["Oliver Kiessler"]
-  gem.add_runtime_dependency 'httparty'
-  gem.add_runtime_dependency 'json'
-end
-Jeweler::RubygemsDotOrgTasks.new
-
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
   test.libs << 'lib' << 'test'
@@ -33,12 +16,10 @@ Rake::TestTask.new(:test) do |test|
   test.verbose = true
 end
 
-# TODO simplecov
-
 task :default => :test
 
 require 'rdoc/task'
-Rake::RDocTask.new do |rdoc|
+RDoc::Task.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
